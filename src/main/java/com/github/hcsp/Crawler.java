@@ -1,7 +1,5 @@
 package com.github.hcsp;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -11,27 +9,28 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import sun.jvm.hotspot.debugger.cdbg.CDebugger;
 
 import java.io.IOException;
 import java.util.*;
 
 public class Crawler {
     public static void main(String[] args) throws IOException {
+        HashMap<String, String> news = new HashMap<>();
+
         Queue<String> linkToBeProcessed = new LinkedList();
 
-        HashMap<String, String> linkHasBeenProcessed = new HashMap<>();
+        HashSet<String> linkHasBeenProcessed = new HashSet<>();
         linkToBeProcessed.add("https://sina.cn/");
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         while(!linkToBeProcessed.isEmpty()) {
             String link = linkToBeProcessed.poll();
-            if (linkHasBeenProcessed.containsKey(link)) {
+            if (linkHasBeenProcessed.contains(link)) {
                 continue;
             }
 
-            linkHasBeenProcessed.put(link, link);
+            linkHasBeenProcessed.add(link);
 
             HttpGet httpGet = new HttpGet(link);
             CloseableHttpResponse response = httpclient.execute(httpGet);
@@ -39,13 +38,24 @@ public class Crawler {
             Document document = Jsoup.parse(responseString);
             Elements elements = document.select("a");
 
+            storeToDataBaseIfIsNewsPage(document);
+
             for (Element element: elements) {
                 String href = element.attr("href");
                 if (href.contains("news.sina.cn")) {
-                    System.out.println(href);
                     linkToBeProcessed.add(href);
                 }
             }
+
+        }
+    }
+
+    private static void storeToDataBaseIfIsNewsPage(Document doc, HashMap news) {
+        Elements articles = doc.select("article");
+        if (!articles.isEmpty()) {
+            String title = articles.get(0).child(0).text();
+            String text = articles.get(0).select("p.art_p").text();
+            news.put(title, text);
         }
     }
 }
