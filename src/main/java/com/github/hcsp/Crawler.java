@@ -15,31 +15,22 @@ import java.util.*;
 
 public class Crawler {
     public static void main(String[] args) throws IOException {
-        HashMap<String, String> news = new HashMap<>();
-
-        Queue<String> linkToBeProcessed = new LinkedList<>();
-
-        HashSet<String> linkHasBeenProcessed = new HashSet<>();
-        linkToBeProcessed.add("https://sina.cn/");
+        JdbcCrawlerDao dao = new JdbcCrawlerDao();
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        while(!linkToBeProcessed.isEmpty()) {
-            String link = linkToBeProcessed.poll();
+        while(!dao.hasNextLinkToBeProcessed()) {
+            String link = dao.getNextLinkAndThenDelete();
 
-            if (isNewPage(link, linkHasBeenProcessed)) {
+            if (dao.hasBeenProcessed(link)) {
                 Document document = getCurrentLinkDocument(httpclient, link);
 
-                storeProcessedLink(linkHasBeenProcessed, link);
-                storeNewsToDataBase(document, news);
-                storeALinkToLinkPool(linkToBeProcessed, document);
+                storeALinkToLinkPool(document, dao);
+                storeNewsToDataBase(document, dao);
             }
         }
     }
 
-    private static void storeProcessedLink(HashSet<String> linkHasBeenProcessed, String link) {
-        linkHasBeenProcessed.add(link);
-    }
 
     private static Document getCurrentLinkDocument(CloseableHttpClient httpclient, String link) throws IOException {
         HttpGet httpGet = new HttpGet(link);
@@ -48,27 +39,25 @@ public class Crawler {
         return Jsoup.parse(responseString);
     }
 
-    private static void storeALinkToLinkPool(Queue<String> linkToBeProcessed, Document document) {
+    private static void storeALinkToLinkPool(Document document, JdbcCrawlerDao dao) {
         Elements elements = document.select("a");
         for (Element element: elements) {
             String href = element.attr("href");
             if (href.contains("news.sina.cn")) {
-                linkToBeProcessed.add(href);
+                dao.storeLinkToLinkPool(href);
             }
         }
     }
 
-    private static boolean isNewPage(String link, HashSet<String> linkHasBeenProcessed) {
-        return !linkHasBeenProcessed.contains(link);
-    }
-
-    private static void storeNewsToDataBase(Document doc, HashMap<String, String> news) {
+    private static void storeNewsToDataBase(Document doc, JdbcCrawlerDao dao) {
         Elements articles = doc.select("article");
         if (!articles.isEmpty()) {
+            HashMap<String, String> news = new HashMap<>();
             String title = articles.get(0).child(0).text();
             String text = articles.get(0).select("p.art_p").text();
-            System.out.println(title);
             news.put(title, text);
+
+            dao.storeNews(news);
         }
     }
 }
