@@ -32,6 +32,11 @@ public class JdbcCrawlerDao implements CrawlerDao {
 
     @Override
     public String getNextLinkAndThenDelete() {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT link FROM LINKS_TO_BE_PROCESSED LIMIT 1");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
