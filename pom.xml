@@ -52,7 +52,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.27</version>
+            <version>8.0.17</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -100,7 +100,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>5.2.4</version>
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/news</url>
+                    <url>jdbc:mysql://localhost:3306/news?characterEncoding=utf-8</url>
                     <user>root</user>
                     <password>root</password>
                 </configuration>

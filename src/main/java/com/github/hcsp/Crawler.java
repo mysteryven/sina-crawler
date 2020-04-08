@@ -15,16 +15,17 @@ import java.util.*;
 
 public class Crawler {
     public static void main(String[] args) throws IOException {
-        JdbcCrawlerDao dao = new JdbcCrawlerDao();
+        MyBatisCrawlerDao dao = new MyBatisCrawlerDao();
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        while(!dao.hasNextLinkToBeProcessed()) {
+        while(dao.hasNextLinkToBeProcessed()) {
             String link = dao.getNextLinkAndThenDelete();
 
-            if (dao.hasBeenProcessed(link)) {
-                Document document = getCurrentLinkDocument(httpclient, link);
+            if (!dao.hasBeenProcessed(link)) {
+                dao.storeLinkToProcessed(link);
 
+                Document document = getCurrentLinkDocument(httpclient, link);
                 storeALinkToLinkPool(document, dao);
                 storeNewsToDataBase(document, dao);
             }
@@ -39,7 +40,7 @@ public class Crawler {
         return Jsoup.parse(responseString);
     }
 
-    private static void storeALinkToLinkPool(Document document, JdbcCrawlerDao dao) {
+    private static void storeALinkToLinkPool(Document document, CrawlerDao dao) {
         Elements elements = document.select("a");
         for (Element element: elements) {
             String href = element.attr("href");
@@ -49,15 +50,15 @@ public class Crawler {
         }
     }
 
-    private static void storeNewsToDataBase(Document doc, JdbcCrawlerDao dao) {
+    private static void storeNewsToDataBase(Document doc, CrawlerDao dao) {
         Elements articles = doc.select("article");
         if (!articles.isEmpty()) {
             HashMap<String, String> news = new HashMap<>();
             String title = articles.get(0).child(0).text();
             String text = articles.get(0).select("p.art_p").text();
-            news.put(title, text);
-
-            dao.storeNews(news);
+            System.out.println(title);
+            System.out.println(text);
+            dao.storeNews(new News(title, text));
         }
     }
 }

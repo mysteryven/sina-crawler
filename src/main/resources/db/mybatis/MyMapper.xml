@@ -11,10 +11,27 @@
     </select>
     <delete id="deleteLink" parameterType="string">
         DELETE
-        FROM links_to_be_processed
+        FROM link_to_be_processed
         where link = #{link}
     </delete>
-    <select id="selectToBeProcessedCount" resultType="int" parameterType="string">
+    <select id="selectHasBeenProcessedCount" resultType="int" parameterType="string">
         SELECT COUNT(*) FROM link_has_been_processed where link = #{link};
     </select>
+    <insert id="insertLink" parameterType="HashMap">
+        insert into
+        <choose>
+            <when test="tableName == 'link_has_been_processed'">
+                link_has_been_processed
+            </when>
+            <otherwise>
+                link_to_be_processed
+            </otherwise>
+        </choose>
+        (link)
+        values (#{link})
+    </insert>
+    <insert id="insertNews" parameterType="com.github.hcsp.News">
+        insert into news (title, content, created_at, modified_at)
+        values (#{title}, #{content}, now(), now())
+    </insert>
 </mapper>

@@ -52,7 +52,12 @@ public class JdbcCrawlerDao implements CrawlerDao {
     }
 
     @Override
-    public void storeNews(HashMap news) {
+    public void storeLinkToProcessed(String link) {
+
+    }
+
+    @Override
+    public void storeNews(News news) {
 
     }
 }
