@@ -36,7 +36,7 @@ public class MyBatisCrawlerDao implements CrawlerDao {
     }
 
     @Override
-    public String getNextLinkAndThenDelete() {
+    public synchronized String getNextLinkAndThenDelete() {
         try(SqlSession session = sqlSessionFactory.openSession(true)) {
             String link = session.selectOne(mybatisPrefix + "selectNextLink");
             session.delete(mybatisPrefix + "deleteLink", link);
