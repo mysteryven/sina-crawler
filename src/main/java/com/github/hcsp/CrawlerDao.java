@@ -11,5 +11,7 @@ public interface CrawlerDao {
 
     void storeLinkToLinkPool(String link);
 
-    void storeNews(HashMap news);
+    void storeLinkToProcessed(String link);
+
+    void storeNews(News news);
 }

@@ -1,7 +1,8 @@
 CREATE TABLE news(
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-title VARCHAR(1000),
-content VARCHAR (1000),
+title text,
+url varchar(1000),
+content text,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

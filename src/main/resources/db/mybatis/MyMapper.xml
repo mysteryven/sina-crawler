@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.hcsp.MyMapper">
+    <select id="selectToBeProcessedCount" resultType="int">
+        SELECT COUNT(*) FROM link_to_be_processed;
+    </select>
+    <select id="selectNextLink" resultType="string">
+        SELECT link FROM link_to_be_processed limit 1;
+    </select>
+    <delete id="deleteLink" parameterType="string">
+        DELETE
+        FROM link_to_be_processed
+        where link = #{link}
+    </delete>
+    <select id="selectHasBeenProcessedCount" resultType="int" parameterType="string">
+        SELECT COUNT(*) FROM link_has_been_processed where link = #{link};
+    </select>
+    <insert id="insertLink" parameterType="HashMap">
+        insert into
+        <choose>
+            <when test="tableName == 'link_has_been_processed'">
+                link_has_been_processed
+            </when>
+            <otherwise>
+                link_to_be_processed
+            </otherwise>
+        </choose>
+        (link)
+        values (#{link})
+    </insert>
+    <insert id="insertNews" parameterType="com.github.hcsp.News">
+        insert into news (title, content, url, created_at, modified_at)
+        values (#{title}, #{content}, #{url}, now(), now())
+    </insert>
+</mapper>
