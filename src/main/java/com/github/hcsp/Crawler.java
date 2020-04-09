@@ -27,7 +27,7 @@ public class Crawler {
 
                 Document document = getCurrentLinkDocument(httpclient, link);
                 storeALinkToLinkPool(document, dao);
-                storeNewsToDataBase(document, dao);
+                storeNewsToDataBase(document, dao, link);
             }
         }
     }
@@ -50,7 +50,7 @@ public class Crawler {
         }
     }
 
-    private static void storeNewsToDataBase(Document doc, CrawlerDao dao) {
+    private static void storeNewsToDataBase(Document doc, CrawlerDao dao, String link) {
         Elements articles = doc.select("article");
         if (!articles.isEmpty()) {
             HashMap<String, String> news = new HashMap<>();
@@ -58,7 +58,7 @@ public class Crawler {
             String text = articles.get(0).select("p.art_p").text();
             System.out.println(title);
             System.out.println(text);
-            dao.storeNews(new News(title, text));
+            dao.storeNews(new News(title, text, link));
         }
     }
 }

@@ -4,6 +4,7 @@ import java.time.Instant;
 
 public class News {
     private Integer id;
+    private String url;
     private String title;
     private String content;
     private String created_at;
@@ -36,13 +37,10 @@ public class News {
     private Instant createdAt;
     private Instant modifiedAt;
 
-    public News() {
-    }
-
-
-    public News(String title, String content) {
+    public News(String title, String content, String url) {
         this.title = title;
         this.content = content;
+        this.url = url;
     }
 
     public News(News old) {
@@ -83,5 +81,13 @@ public class News {
 
     public void setModified_at(String modified_at) {
         this.modified_at = modified_at;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

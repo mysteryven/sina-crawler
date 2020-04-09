@@ -31,7 +31,7 @@
         values (#{link})
     </insert>
     <insert id="insertNews" parameterType="com.github.hcsp.News">
-        insert into news (title, content, created_at, modified_at)
-        values (#{title}, #{content}, now(), now())
+        insert into news (title, content, url, created_at, modified_at)
+        values (#{title}, #{content}, #{url}, now(), now())
     </insert>
 </mapper>
